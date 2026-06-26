@@ -1,11 +1,20 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { latestStories } from "../data/homePageContent";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchNews } from "../store/newsSlice";
 import ArticleCard from "./ArticleCard";
 
-function LatestNews() {
+function LatestNews({ onOpenProfile }) {
+  const dispatch = useDispatch();
+  const { error, items: latestStories, status } = useSelector((state) => state.news);
   const listRef = useRef(null);
   const frameRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
+
+  useEffect(() => {
+    if (status === "idle") {
+      dispatch(fetchNews());
+    }
+  }, [dispatch, status]);
 
   const updateActiveCard = useCallback(() => {
     const list = listRef.current;
@@ -22,7 +31,7 @@ function LatestNews() {
     );
 
     setActiveIndex(nextActive);
-  }, []);
+  }, [latestStories.length]);
 
   useEffect(() => {
     const list = listRef.current;
@@ -55,6 +64,14 @@ function LatestNews() {
     };
   }, [updateActiveCard]);
 
+  if (status === "loading") {
+    return <section className="latest-section rounded-3xl bg-white p-4 text-sm font-bold text-[#667085]">Loading news...</section>;
+  }
+
+  if (status === "failed") {
+    return <section className="latest-section rounded-3xl bg-white p-4 text-sm font-bold text-[#c5222f]">{error}</section>;
+  }
+
   return (
     <section className="latest-section" aria-labelledby="latest-heading">
       <div
@@ -62,7 +79,16 @@ function LatestNews() {
         ref={listRef}
       >
         {latestStories.map((story, index) => (
-          <ArticleCard index={index} isActive={activeIndex === index} key={story.title} story={story} />
+          <ArticleCard
+            index={index}
+            isActive={activeIndex === index}
+            key={story.id || story.title}
+            onFollowChange={() => dispatch(fetchNews())}
+            onOpenProfile={onOpenProfile}
+            onPostDeleted={() => dispatch(fetchNews())}
+            onPostUpdated={() => dispatch(fetchNews())}
+            story={story}
+          />
         ))}
       </div>
     </section>

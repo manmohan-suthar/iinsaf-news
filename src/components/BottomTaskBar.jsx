@@ -8,7 +8,7 @@ const taskBarItems = [
   { label: 'Profile', view: 'profile', icon: User },
 ]
 
-function BottomTaskBar({ activeView, onChange }) {
+function BottomTaskBar({ activeView, onChange, unreadCount = 0 }) {
   return (
     <nav className="bottom-taskbar" aria-label="App task bar">
       {taskBarItems.map(({ label, view, icon: Icon }) => (
@@ -16,12 +16,17 @@ function BottomTaskBar({ activeView, onChange }) {
           aria-current={activeView === view ? 'page' : undefined}
           className={activeView === view ? 'taskbar-item is-active' : 'taskbar-item'}
           key={label}
-          onClick={() =>
-            onChange(view === 'search' || view === 'notification' || view === 'profile' ? view : 'home')
-          }
+          onClick={() => onChange(view)}
           type="button"
         >
-          <Icon aria-hidden="true" size={24} strokeWidth={2.3} />
+          <span className="relative">
+            <Icon aria-hidden="true" size={24} strokeWidth={2.3} />
+            {view === 'notification' && unreadCount > 0 ? (
+              <span className="absolute -right-2 -top-2 grid h-5 min-w-5 place-items-center rounded-full bg-[#c5222f] px-1 text-[11px] font-black text-white">
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
+            ) : null}
+          </span>
           <span>{label}</span>
         </button>
       ))}

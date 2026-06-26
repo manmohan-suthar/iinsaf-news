@@ -1,53 +1,42 @@
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Bot, Flame, MapPin, Mic2, Search, ShieldAlert, Trophy, Tv } from "lucide-react";
-import video1 from "../assets/videos/video1.mp4";
-import video2 from "../assets/videos/video2.mp4";
-import video3 from "../assets/videos/video3.mp4";
+import { apiAssetUrl } from "../store/apiClient";
+import { fetchCategories } from "../store/categorySlice";
+import { fetchNews } from "../store/newsSlice";
+import { fetchReporters } from "../store/reporterSlice";
 import TopicFilters from "./TopicFilters";
 
-const categories = [
-  { label: "लोकल", count: "128 खबरें", icon: MapPin },
-  { label: "ट्रेंडिंग", count: "84 अपडेट", icon: Flame },
-  { label: "AI टेक", count: "32 खबरें", icon: Bot },
-  { label: "वार", count: "19 अपडेट", icon: ShieldAlert },
-  { label: "स्पोर्ट्स", count: "51 खबरें", icon: Trophy },
-  { label: "वीडियो", count: "76 शॉर्ट्स", icon: Tv },
-];
+const categoryIcons = {
+  local: MapPin,
+  trending: Flame,
+  "ai-tech": Bot,
+  war: ShieldAlert,
+  sports: Trophy,
+  video: Tv,
+};
 
-const trendingVideos = [
-  {
-    title: "शहर के मुख्य बाजार में नई ट्रैफिक व्यवस्था लागू",
-    video: video1,
-  },
-  {
-    title: "एआई नियमों पर सरकार की नई गाइडलाइन जारी",
-    video: video2,
-  },
-  {
-    title: "स्थानीय अस्पताल में गर्मी से बचाव की तैयारी तेज",
-    video: video3,
-  },
-];
+function SearchPage({ onOpenProfile }) {
+  const dispatch = useDispatch();
+  const categories = useSelector((state) => state.categories.items);
+  const categoriesStatus = useSelector((state) => state.categories.status);
+  const news = useSelector((state) => state.news.items);
+  const newsStatus = useSelector((state) => state.news.status);
+  const reporters = useSelector((state) => state.reporters.items);
+  const reportersStatus = useSelector((state) => state.reporters.status);
 
-const reporters = [
-  {
-    name: "Ramesh Kumar",
-    photo: "https://randomuser.me/api/portraits/men/32.jpg",
-  },
-  {
-    name: "Ram Pratap",
-    photo: "https://randomuser.me/api/portraits/men/46.jpg",
-  },
-  {
-    name: "Suresh Yadav",
-    photo: "https://randomuser.me/api/portraits/men/54.jpg",
-  },
-  {
-    name: "Neha Sharma",
-    photo: "https://randomuser.me/api/portraits/women/44.jpg",
-  },
-];
+  useEffect(() => {
+    if (categoriesStatus === "idle") {
+      dispatch(fetchCategories());
+    }
+    if (newsStatus === "idle") {
+      dispatch(fetchNews());
+    }
+    if (reportersStatus === "idle") {
+      dispatch(fetchReporters());
+    }
+  }, [categoriesStatus, dispatch, newsStatus, reportersStatus]);
 
-function SearchPage() {
   return (
     <section className="search-page space-y-5 pb-4" aria-label="Search news page">
       <div className="rounded-2xl border border-[#dedbd2] bg-white p-3">
@@ -75,21 +64,25 @@ function SearchPage() {
         </div>
 
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {categories.map(({ count, icon: Icon, label }) => (
-            <button
-              className="flex items-center gap-3 rounded-2xl border border-[#dedbd2] bg-white p-3 text-left"
-              key={label}
-              type="button"
-            >
-              <span className="grid h-11 w-11 place-items-center rounded-xl bg-[#f5e8df] text-[#c5222f]">
-                <Icon aria-hidden="true" size={21} strokeWidth={2.4} />
-              </span>
-              <span className="min-w-0">
-                <strong className="block truncate text-sm text-[#111827]">{label}</strong>
-                <small className="block truncate text-xs font-bold text-[#667085]">{count}</small>
-              </span>
-            </button>
-          ))}
+          {categories.map((category) => {
+            const Icon = categoryIcons[category.slug] || Flame;
+
+            return (
+              <button
+                className="flex items-center gap-3 rounded-2xl border border-[#dedbd2] bg-white p-3 text-left"
+                key={category.id}
+                type="button"
+              >
+                <span className="grid h-11 w-11 place-items-center rounded-xl bg-[#f5e8df] text-[#c5222f]">
+                  <Icon aria-hidden="true" size={21} strokeWidth={2.4} />
+                </span>
+                <span className="min-w-0">
+                  <strong className="block truncate text-sm text-[#111827]">{category.label}</strong>
+                  <small className="block truncate text-xs font-bold text-[#667085]">{category.count} खबरें</small>
+                </span>
+              </button>
+            );
+          })}
         </div>
       </section>
 
@@ -104,17 +97,17 @@ function SearchPage() {
         </div>
 
         <div className="flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {trendingVideos.map(({ title, video }) => (
-            <article className="w-[72vw] max-w-[270px] flex-none overflow-hidden rounded-2xl bg-white" key={title}>
+          {news.map((story) => (
+            <article className="w-[72vw] max-w-[270px] flex-none overflow-hidden rounded-2xl bg-white" key={story.id}>
               <div className="relative aspect-[16/10] bg-[#111827]">
                 <video autoPlay loop muted playsInline preload="metadata" className="h-full w-full object-contain">
-                  <source src={video} type="video/mp4" />
+                  <source src={apiAssetUrl(story.videoUrl)} type="video/mp4" />
                 </video>
                 <span className="absolute left-3 top-3 rounded-full bg-black/60 px-2.5 py-1 text-xs font-extrabold text-white">
                   Video
                 </span>
               </div>
-              <h3 className="p-3 text-sm font-extrabold leading-snug text-[#111827]">{title}</h3>
+              <h3 className="p-3 text-sm font-extrabold leading-snug text-[#111827]">{story.title}</h3>
             </article>
           ))}
         </div>
@@ -127,16 +120,33 @@ function SearchPage() {
           </h2>
         </div>
 
-        <div className="grid grid-cols-4 gap-3">
-          {reporters.map(({ name, photo }) => (
-            <article className="min-w-0 p-2.5 text-center" key={name}>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {reportersStatus === "loading" && !reporters.length ? (
+            Array.from({ length: 4 }).map((_, index) => (
+              <div className="min-w-0 rounded-2xl bg-white p-3 text-center" key={index}>
+                <div className="mx-auto h-16 w-16 animate-pulse rounded-full bg-[#f3f1ec]" />
+                <div className="mx-auto mt-2 h-3 w-20 animate-pulse rounded-full bg-[#f3f1ec]" />
+              </div>
+            ))
+          ) : reporters.map((reporter) => (
+            <button
+              className="min-w-0 rounded-2xl bg-white p-3 text-center"
+              key={reporter.id}
+              onClick={() => onOpenProfile?.(reporter.id)}
+              type="button"
+            >
               <img
                 alt=""
                 className="mx-auto h-16 w-16 rounded-full border-2 border-[#f5e8df] object-cover"
-                src={photo}
+                src={apiAssetUrl(reporter.avatarUrl)}
               />
-              <h3 className="mt-2 truncate text-xs font-extrabold text-[#111827]">{name}</h3>
-            </article>
+              <h3 className="mt-2 truncate text-xs font-extrabold text-[#111827]">{reporter.name}</h3>
+              <p className="truncate text-[11px] font-bold text-[#667085]">{reporter.username}</p>
+              <p className="mt-1 truncate text-[10px] font-bold text-[#8a7f76]">{reporter.area}</p>
+              <p className="mt-1 text-[10px] font-black text-[#c5222f]">
+                {reporter.postsCount || 0} posts · {reporter.followersCount || 0} followers
+              </p>
+            </button>
           ))}
         </div>
       </section>

@@ -1,13 +1,13 @@
 import { Bell, MapPin, Search } from "lucide-react";
 
-function Header() {
+function Header({ activeView, onChange, unreadCount = 0 }) {
   return (
     <header className="site-header">
       <a className="brand" href="/" aria-label="IINSAF News home">
         <img
           src="https://www.iinsaf.com/assets/icon.jpg"
           alt="logo"
-          srcset=""
+          srcSet=""
           className="h-10 w-10 rounded-full object-cover"
         />
         <span>
@@ -35,10 +35,16 @@ function Header() {
         </button>
         <button
           aria-label="Notifications"
-          className="icon-button"
+          className={activeView === "notification" ? "icon-button is-active relative" : "icon-button relative"}
+          onClick={() => onChange?.("notification")}
           type="button"
         >
           <Bell aria-hidden="true" size={21} strokeWidth={2.4} />
+          {unreadCount > 0 ? (
+            <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-[#c5222f] px-1 text-[11px] font-black text-white">
+              {unreadCount > 99 ? "99+" : unreadCount}
+            </span>
+          ) : null}
         </button>
       </div>
     </header>
