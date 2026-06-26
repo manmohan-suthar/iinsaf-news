@@ -13,6 +13,7 @@ import ProfilePage from "./components/profile/ProfilePage";
 import PublicUserProfilePage from "./components/profile/PublicUserProfilePage";
 import SearchPage from "./components/SearchPage";
 import UploadNewsPage from "./components/upload/UploadNewsPage";
+import { setAuthToken } from "./store/apiClient";
 import { fetchCurrentUser } from "./store/authSlice";
 import {
   clearNotifications,
@@ -32,6 +33,23 @@ function App() {
   ).length;
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+    const authToken = params.get("auth_token") || hashParams.get("auth_token");
+
+    if (authToken) {
+      setAuthToken(authToken);
+      params.delete("auth_token");
+      hashParams.delete("auth_token");
+      const query = params.toString();
+      const hash = hashParams.toString();
+      window.history.replaceState(
+        {},
+        "",
+        `${window.location.pathname}${query ? `?${query}` : ""}${hash ? `#${hash}` : ""}`,
+      );
+    }
+
     dispatch(fetchCurrentUser());
   }, [dispatch]);
 

@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import { API_BASE_URL, fetchJson, postJson, putForm } from './apiClient'
+import { API_BASE_URL, clearAuthToken, fetchJson, postJson, putForm } from './apiClient'
 
 export const fetchCurrentUser = createAsyncThunk('auth/fetchCurrentUser', () => fetchJson('/api/auth/me'))
 export const logoutUser = createAsyncThunk('auth/logoutUser', () => postJson('/api/auth/logout'))
@@ -42,6 +42,7 @@ const authSlice = createSlice({
         state.user = null
       })
       .addCase(logoutUser.fulfilled, (state) => {
+        clearAuthToken()
         state.user = null
       })
       .addCase(saveUserLocation.fulfilled, (state, action) => {

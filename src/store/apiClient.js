@@ -1,4 +1,24 @@
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://iinsaf-news-api.vercel.app'
+const authTokenKey = 'iinsaf_auth_token'
+
+export function getAuthToken() {
+  return window.localStorage.getItem(authTokenKey) || ''
+}
+
+export function setAuthToken(token) {
+  if (token) {
+    window.localStorage.setItem(authTokenKey, token)
+  }
+}
+
+export function clearAuthToken() {
+  window.localStorage.removeItem(authTokenKey)
+}
+
+function authHeaders(headers = {}) {
+  const token = getAuthToken()
+  return token ? { ...headers, Authorization: `Bearer ${token}` } : headers
+}
 
 export function apiAssetUrl(path) {
   if (!path) {
@@ -15,6 +35,7 @@ export function apiAssetUrl(path) {
 export async function fetchJson(path) {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     credentials: 'include',
+    headers: authHeaders(),
   })
 
   if (!response.ok) {
@@ -28,7 +49,7 @@ export async function fetchJson(path) {
 export async function postJson(path, body) {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     body: body ? JSON.stringify(body) : undefined,
-    headers: body ? { 'Content-Type': 'application/json' } : undefined,
+    headers: authHeaders(body ? { 'Content-Type': 'application/json' } : {}),
     credentials: 'include',
     method: 'POST',
   })
@@ -45,7 +66,7 @@ export async function putJson(path, body) {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     body: JSON.stringify(body),
     credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
+    headers: authHeaders({ 'Content-Type': 'application/json' }),
     method: 'PUT',
   })
 
@@ -61,6 +82,7 @@ export async function putJson(path, body) {
 export async function deleteJson(path) {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     credentials: 'include',
+    headers: authHeaders(),
     method: 'DELETE',
   })
 
@@ -77,6 +99,7 @@ export async function putForm(path, formData) {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     body: formData,
     credentials: 'include',
+    headers: authHeaders(),
     method: 'PUT',
   })
 
