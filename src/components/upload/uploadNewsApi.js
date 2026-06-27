@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "../../store/apiClient";
+import { API_BASE_URL, getAuthToken } from "../../store/apiClient";
 
 export function uploadNewsWithProgress({ description, location, mediaItems, onProgress, tag, title }) {
   const formData = new FormData();
@@ -14,6 +14,11 @@ export function uploadNewsWithProgress({ description, location, mediaItems, onPr
 
     request.open("POST", `${API_BASE_URL}/api/news/upload`);
     request.withCredentials = true;
+    const authToken = getAuthToken();
+
+    if (authToken) {
+      request.setRequestHeader("Authorization", `Bearer ${authToken}`);
+    }
 
     request.upload.onprogress = (event) => {
       if (!event.lengthComputable) {
