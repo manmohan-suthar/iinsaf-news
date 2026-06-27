@@ -5,7 +5,7 @@ import PublicProfileHeader from './PublicProfileHeader'
 import ProfileTabs from './ProfileTabs'
 import UploadedPostList from './UploadedPostList'
 
-function PublicUserProfilePage({ onBack, onOpenPost, userId }) {
+function PublicUserProfilePage({ onBack, onLoginRequired, onOpenPost, userId }) {
   const dispatch = useDispatch()
   const { error, follow, items, profile, status, total } = useSelector((state) => state.publicProfile)
 
@@ -38,7 +38,13 @@ function PublicUserProfilePage({ onBack, onOpenPost, userId }) {
 
   return (
     <section className="space-y-4 pb-4" aria-label="Public profile page">
-      <PublicProfileHeader follow={follow} onBack={onBack} profile={profile} totalPosts={total} />
+      <PublicProfileHeader
+        follow={follow}
+        onBack={onBack}
+        onLoginRequired={onLoginRequired}
+        profile={profile}
+        totalPosts={total}
+      />
       <ProfileTabs />
       <UploadedPostList
         emptyText={`${profile.name}'s uploaded photo and video news will show here.`}

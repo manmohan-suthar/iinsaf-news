@@ -1,9 +1,11 @@
 import { useMemo, useState } from "react";
 import { ArrowLeft, MapPin, MessageCircle, Plus } from "lucide-react";
+import { useSelector } from "react-redux";
 import { followUser, unfollowUser } from "../../store/followApi";
 import { apiAssetUrl } from "../../store/apiClient";
 
-function PublicProfileHeader({ follow, onBack, profile, totalPosts }) {
+function PublicProfileHeader({ follow, onBack, onLoginRequired, profile, totalPosts }) {
+  const { user } = useSelector((state) => state.auth);
   const [followOverride, setFollowOverride] = useState(null);
   const [isSavingFollow, setIsSavingFollow] = useState(false);
   const [failedAvatarUrl, setFailedAvatarUrl] = useState("");
@@ -50,6 +52,11 @@ function PublicProfileHeader({ follow, onBack, profile, totalPosts }) {
 
   async function handleFollowClick() {
     if (isSavingFollow) {
+      return;
+    }
+
+    if (!user) {
+      onLoginRequired?.();
       return;
     }
 

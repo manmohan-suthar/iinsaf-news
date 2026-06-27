@@ -39,7 +39,7 @@ function formatCount(count) {
   return String(count);
 }
 
-function ArticleCard({ index, isActive, onFollowChange, onOpenProfile, onPostDeleted, onPostUpdated, story }) {
+function ArticleCard({ index, isActive, onFollowChange, onLoginRequired, onOpenProfile, onPostDeleted, onPostUpdated, story }) {
   const { user } = useSelector((state) => state.auth);
   const videoRef = useRef(null);
   const commentCloseTimerRef = useRef(null);
@@ -88,6 +88,11 @@ function ArticleCard({ index, isActive, onFollowChange, onOpenProfile, onPostDel
       return;
     }
 
+    if (!user) {
+      onLoginRequired?.();
+      return;
+    }
+
     setIsSavingFollow(true);
 
     try {
@@ -104,6 +109,11 @@ function ArticleCard({ index, isActive, onFollowChange, onOpenProfile, onPostDel
 
   async function handleLikeClick() {
     if (!currentStory.id || isSavingLike) {
+      return;
+    }
+
+    if (!user) {
+      onLoginRequired?.();
       return;
     }
 
@@ -181,6 +191,11 @@ function ArticleCard({ index, isActive, onFollowChange, onOpenProfile, onPostDel
   }
 
   function openComments() {
+    if (!user) {
+      onLoginRequired?.();
+      return;
+    }
+
     if (commentCloseTimerRef.current) {
       window.clearTimeout(commentCloseTimerRef.current);
       commentCloseTimerRef.current = null;

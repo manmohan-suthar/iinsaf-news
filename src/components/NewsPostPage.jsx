@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { fetchJson } from "../store/apiClient";
 import ArticleCard from "./ArticleCard";
 
-function NewsPostPage({ newsId, onBack, onOpenProfile }) {
+function NewsPostPage({ newsId, onBack, onLoginRequired, onOpenProfile }) {
   const [story, setStory] = useState(null);
   const [status, setStatus] = useState("idle");
   const [error, setError] = useState("");
@@ -65,6 +65,7 @@ function NewsPostPage({ newsId, onBack, onOpenProfile }) {
         <ArticleCard
           index={0}
           isActive
+          onLoginRequired={onLoginRequired}
           onOpenProfile={onOpenProfile}
           onPostDeleted={onBack}
           onPostUpdated={setStory}

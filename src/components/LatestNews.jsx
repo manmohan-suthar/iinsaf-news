@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchNews } from "../store/newsSlice";
 import ArticleCard from "./ArticleCard";
 
-function LatestNews({ onOpenProfile }) {
+function LatestNews({ onLoginRequired, onOpenProfile }) {
   const dispatch = useDispatch();
   const { error, items: latestStories, status } = useSelector((state) => state.news);
   const listRef = useRef(null);
@@ -83,6 +83,7 @@ function LatestNews({ onOpenProfile }) {
             index={index}
             isActive={activeIndex === index}
             key={story.id || story.title}
+            onLoginRequired={onLoginRequired}
             onFollowChange={() => dispatch(fetchNews())}
             onOpenProfile={onOpenProfile}
             onPostDeleted={() => dispatch(fetchNews())}

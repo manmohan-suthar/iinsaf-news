@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import BottomTaskBar from "./components/BottomTaskBar";
 import Header from "./components/Header";
 import LatestNews from "./components/LatestNews";
+import LoginRequiredModal from "./components/auth/LoginRequiredModal";
 import LocationPrompt from "./components/auth/LocationPrompt";
 import LoginPage from "./components/auth/LoginPage";
 import NewsPostPage from "./components/NewsPostPage";
@@ -28,6 +29,7 @@ function App() {
   const [publicProfileUserId, setPublicProfileUserId] = useState("");
   const [selectedNewsId, setSelectedNewsId] = useState("");
   const [postBackView, setPostBackView] = useState("home");
+  const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
   const unreadNotificationCount = notifications.filter(
     (item) => !item.isRead,
   ).length;
@@ -72,6 +74,15 @@ function App() {
     setActiveView("post");
   }
 
+  function openLoginPrompt() {
+    setIsLoginPromptOpen(true);
+  }
+
+  function openLoginPage() {
+    setIsLoginPromptOpen(false);
+    setActiveView("profile");
+  }
+
   return (
     <main className="app-shell">
       <Header
@@ -91,6 +102,7 @@ function App() {
       ) : activeView === "publicProfile" ? (
         <PublicUserProfilePage
           onBack={() => setActiveView("home")}
+          onLoginRequired={openLoginPrompt}
           onOpenPost={(newsId) => openNewsPost(newsId, "publicProfile")}
           userId={publicProfileUserId}
         />
@@ -98,6 +110,7 @@ function App() {
         <NewsPostPage
           newsId={selectedNewsId}
           onBack={() => setActiveView(postBackView)}
+          onLoginRequired={openLoginPrompt}
           onOpenProfile={openPublicProfile}
         />
       ) : activeView === "profile" ? (
@@ -122,7 +135,7 @@ function App() {
           {/* <BreakingNews /> */}
           {/* <TopicFilters /> */}
 
-          <LatestNews onOpenProfile={openPublicProfile} />
+          <LatestNews onLoginRequired={openLoginPrompt} onOpenProfile={openPublicProfile} />
           {/* <Newsletter /> */}
         </>
       )}
@@ -133,6 +146,11 @@ function App() {
         activeView={activeView}
         onChange={setActiveView}
         unreadCount={unreadNotificationCount}
+      />
+      <LoginRequiredModal
+        isOpen={isLoginPromptOpen}
+        onClose={() => setIsLoginPromptOpen(false)}
+        onLogin={openLoginPage}
       />
     </main>
   );

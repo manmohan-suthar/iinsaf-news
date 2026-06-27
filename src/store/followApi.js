@@ -1,8 +1,10 @@
-import { API_BASE_URL, fetchJson } from './apiClient'
+import { API_BASE_URL, fetchJson, getAuthToken } from './apiClient'
 
 async function sendFollowRequest(userId, method) {
+  const token = getAuthToken()
   const response = await fetch(`${API_BASE_URL}/api/users/${userId}/follow`, {
     credentials: 'include',
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
     method,
   })
 
